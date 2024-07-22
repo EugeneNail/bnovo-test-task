@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Country extends Model
 {
@@ -12,4 +13,9 @@ class Country extends Model
         'name',
         'code',
     ];
+
+
+    public function guest(): BelongsTo {
+        return $this->belongsTo(Guest::class);
+    }
 }
