@@ -41,4 +41,11 @@ class GuestController extends Controller
     public function show(Guest $guest) {
         return response()->json($guest->load('country'));
     }
+
+
+    public function destroy(Guest $guest) {
+        $guest->delete();
+
+        return response()->noContent();
+    }
 }
