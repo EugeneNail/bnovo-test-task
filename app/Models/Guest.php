@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Guest extends Model
@@ -16,7 +17,7 @@ class Guest extends Model
     ];
 
 
-    public function country(): HasOne {
-        return $this->hasOne(Country::class);
+    public function country(): BelongsTo {
+        return $this->belongsTo(Country::class);
     }
 }

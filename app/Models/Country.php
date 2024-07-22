@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Country extends Model
 {
@@ -15,7 +16,7 @@ class Country extends Model
     ];
 
 
-    public function guest(): BelongsTo {
-        return $this->belongsTo(Guest::class);
+    public function guest(): HasMany {
+        return $this->hasMany(Guest::class);
     }
 }
