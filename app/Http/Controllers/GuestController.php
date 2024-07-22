@@ -36,4 +36,9 @@ class GuestController extends Controller
         $guest = $this->guestRepository->save($request->validated(), $country);
         return response()->json($guest->id, Response::HTTP_CREATED);
     }
+
+
+    public function show(Guest $guest) {
+        return response()->json($guest->load('country'));
+    }
 }
