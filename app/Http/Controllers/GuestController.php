@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Guest\StoreRequest;
+use App\Http\Requests\Guest\UpdateRequest;
 use App\Models\Country;
 use App\Models\Guest;
 use App\Services\Country\CountryExtractorInterface;
@@ -33,7 +34,7 @@ class GuestController extends Controller
             return response()->json('Country not found', Response::HTTP_NOT_FOUND);
         }
 
-        $guest = $this->guestRepository->save($request->validated(), $country);
+        $guest = $this->guestRepository->create($request->validated(), $country);
         return response()->json($guest->id, Response::HTTP_CREATED);
     }
 
@@ -45,6 +46,18 @@ class GuestController extends Controller
 
     public function destroy(Guest $guest) {
         $guest->delete();
+
+        return response()->noContent();
+    }
+
+
+    public function update(UpdateRequest $request, Guest $guest) {
+        $country = $this->countryExtractor->fromRequest($request);
+        if ($country == null) {
+            return response()->json('Country not found', Response::HTTP_NOT_FOUND);
+        }
+
+        $this->guestRepository->update($guest, $request->validated(), $country);
 
         return response()->noContent();
     }

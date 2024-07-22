@@ -7,5 +7,7 @@ use App\Models\Guest;
 
 interface GuestRepositoryInterface
 {
-    public function save(array $data, Country $country): Guest;
+    public function create(array $data, Country $country): Guest;
+
+    public function update(Guest $guest, array $data, Country $country): void;
 }
