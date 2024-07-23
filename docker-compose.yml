@@ -1,0 +1,35 @@
+
+services:
+
+    app:
+        container_name: app
+        env_file:
+            - .env
+        build: .
+        volumes:
+            -   .:/var/www/html
+        command: php artisan serve --host 0.0.0.0
+        depends_on:
+            db:
+                condition: service_healthy
+        ports:
+            -   "8000:8000"
+
+    db:
+        container_name: mysql
+        image: mysql/mysql-server:8.0
+        ports:
+            - "13306:3306"
+        env_file:
+            - .env
+        volumes:
+            - ./storage/mysql:/var/lib/mysql
+        environment:
+            MYSQL_ALLOW_EMPTY_PASSWORD: yes
+            MYSQL_DATABASE: ${DB_DATABASE}
+            MYSQL_USER: ${DB_USERNAME}
+            MYSQL_PASSWORD: ${DB_PASSWORD}
+        healthcheck:
+            test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+            timeout: 1s
+            retries: 10
