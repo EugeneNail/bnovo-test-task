@@ -1,66 +1,217 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Техническое задание
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Написать микросервис работы с гостями используя язык программирования на выбор PHP или Go, можно пользоваться любыми opensource пакетами, также возможно реализовать с использованием фреймворков или
+без них. БД также любая на выбор, использующая SQL в качестве языка запросов.
 
-## About Laravel
+Микросервис реализует API для CRUD операций над гостем. То есть принимает данные для создания, изменения, получения, удаления записей гостей хранящихся в выбранной базе данных.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Сущность "Гость" Имя, фамилия и телефон – обязательные поля. А поля телефон и email уникальны. В итоге у гостя должны быть следующие атрибуты: идентификатор, имя, фамилия, email, телефон, страна. Если
+страна не указана то доставать страну из номера телефона +7 - Россия и т.д.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+Правила валидации нужно придумать и реализовать самостоятельно. Микросервис должен запускаться в Docker.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Результат опубликовать в Git репозитории, в него же положить README файл с описанием проекта. Описание не регламентировано, исполнитель сам решает что нужно написать (техническое задание, документация
+по коду, инструкция для запуска). Также должно быть описание API (как в него делать запросы, какой формат запроса и ответа), можно в любом формате, в том числе в том же README файле.
 
-## Learning Laravel
+# Технологии
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+- PHP 8.1
+- MySQL server 8.0
+- Laravel 11
+- Composer LTS
+- Docker 24.0.5
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+# Реализация
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Приложение предоставляет 4 маршрута (`store`, `show`, `update`, `destroy`) для работы над сущностью `Guest`, имеющей отношения М-1 с сущностью `Country`.
+Сущность `Country` выполняет роль enum'a для стран и заполняется из сидеров.
 
-## Laravel Sponsors
+В приложении отсутствует система аутентификации и ролей.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### Guest:
 
-### Premium Partners
+|              |                              |
+|--------------|------------------------------|
+| name         | `string`                     |
+| last_name    | `string`                     |
+| email        | `string` `nullable` `unique` |
+| phone_number | `string` `unique`            |
+| country_id   | `int` `foreign`              |
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+### Country:
 
-## Contributing
+|      |                |
+|------|----------------|
+| code | `int` `unique` |
+| name | `string`       |
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+# Контракт API
 
-## Code of Conduct
+## `POST` /api/guests
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+<details>
+<summary>Параметры:</summary>
 
-## Security Vulnerabilities
+```
+name            string               
+Только кириллица и буквы латинского алфавита.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+lastName        string
+Только кириллица и буквы латинского алфавита.
 
-## License
+phoneNumber     string
+Цифры в формате +0000000000
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+email           string nullable
+Действительный адрес электронной почты.
+
+countryId       integer nullable
+Идентификатор страны
+Если параметр отсутствует в запросе, то сервер автоматически выбирает страну на основе кода из номера телефона.
+```
+</details>
+
+<details>
+    <summary>Ответ 201:</summary>
+
+```
+integer           
+Идентификатор нового Guest
+```
+</details>
+<details>
+    <summary>Ответ 422:</summary>
+
+```
+message         string
+errors          object
+{
+    field1      array<string>
+    field2      array<string>
+    ...
+}
+```
+</details>
+
+## `GET` /api/guests/{guest}
+
+<details>
+<summary>Параметры:</summary>
+
+```
+guest            integer               
+Идентификатор сущности Guest
+```
+</details>
+
+<details>
+    <summary>Ответ 200:</summary>
+
+```
+id              integer
+name            string
+last_name       string
+email           string
+phone_number    string
+country_id      integer
+created_at      UTC timestamp
+updated_at      UTC timestamp
+country         object
+{
+    id          integer
+    name        string
+    code        integer
+}
+```
+</details>
+
+## `PUT` /api/guests/{guest}
+
+<details>
+<summary>Параметры:</summary>
+
+```
+guest           integer
+Идентификатор сущности Guest
+
+
+name            string               
+Только кириллица и буквы латинского алфавита.
+
+lastName        string
+Только кириллица и буквы латинского алфавита.
+
+phoneNumber     string
+Цифры в формате +0000000000
+
+email           string nullable
+Действительный адрес электронной почты.
+
+countryId       integer nullable
+Идентификатор страны
+Если параметр отсутствует в запросе, то сервер автоматически выбирает страну на основе кода из номера телефона.
+```
+</details>
+
+<details>
+    <summary>Ответ 204:</summary>
+
+```
+<no data>
+```
+</details>
+<details>
+    <summary>Ответ 422:</summary>
+
+```
+message         string
+errors          object
+{
+    field1      array<string>
+    field2      array<string>
+    ...
+}
+```
+</details>
+
+## `DELETE` /api/guests/{guest}
+
+<details>
+    <summary>Параметры</summary>
+
+```
+guest           integer
+Идентификатор сущности Guest
+```
+</details>
+
+<details>
+    <summary>Ответ 204</summary>
+
+```
+<no data>
+```
+</details>
+
+# Деплой
+
+- **Dockerfile** собирает образ на основе php версии 8.1, загружает библиотеки для работы composer и устанавливает зависимости фреймворка Laravel;
+- **docker-composer.yml** запускает сервисы `app` и `mysql` на портах 8000 и 13306, монтирует внешний том для хранения данных MySQL и загружает переменные среды из .env в контейнеры. Сервис `app`
+  запускается только после healthcheck'а сервиса `mysql`;
+- **Makefile** собирает контейнеры и заполняет базу данных.
+
+Установка репозитория:
+
+```
+
+git clone https://github.com/EugeneNail/bnovo-test-task.git && cd bnovo-test-task
+
+```
+
+Запуск приложения:
+
+```
+
+sudo make all
+
+```
