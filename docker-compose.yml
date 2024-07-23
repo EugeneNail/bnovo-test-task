@@ -6,8 +6,6 @@ services:
         env_file:
             - .env
         build: .
-        volumes:
-            -   .:/var/www/html
         command: php artisan serve --host 0.0.0.0
         depends_on:
             db:
